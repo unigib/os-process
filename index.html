@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <title>Process memory playground | University of Gibraltar · CSS45102</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html"><img class="brand-logo" src="logo.png" alt=""><span class="brand-name">UNIVERSITY OF GIBRALTAR<span class="brand-course">CSS45102 <span class="brand-divider">/</span> PROCESS LAB</span></span></a>
+      <a class="lab-link" href="README.md">Cutter lab <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="intro">
+      <div>
+        <p class="eyebrow"><span class="live-dot"></span> CSS45102 <span class="eyebrow-divider">/</span> INTERACTIVE LEARNING LAB</p>
+        <h1>Inside a running <span>process.</span></h1>
+        <p class="intro-copy">A program in memory is more than its code. Make a few moves and watch its memory layout come to life.</p>
+      </div>
+      <div class="simulation-note"><span class="note-icon">i</span><span><strong>A SIMPLIFIED SIMULATION</strong><br>Illustrative, not real process memory</span></div>
+    </div>
+
+    <div class="workspace">
+      <section class="map-card" aria-labelledby="map-title">
+        <div class="card-heading">
+          <div><p class="section-number">01 / THE BIG PICTURE</p><h2 id="map-title">Virtual memory layout</h2></div>
+          <span class="map-badge"><span class="live-dot"></span> LIVE VIEW</span>
+        </div>
+        <div class="memory-visual">
+          <div class="address-scale" aria-hidden="true"><span>HIGH<br>ADDRESS</span><div class="scale-line"></div><span>LOW<br>ADDRESS</span></div>
+          <div class="memory-map">
+            <div class="map-region stack-region">
+              <div class="region-heading"><div><span class="region-symbol">↓</span><strong>STACK</strong><span class="region-subtitle">function calls &amp; local variables</span></div><span id="stack-count" class="region-count"></span></div>
+              <div id="stack-frames" class="stack-frames"></div>
+            </div>
+            <div class="free-region"><span class="free-dots" aria-hidden="true">· · ·</span><span>unused space in this model</span><span class="free-arrows" aria-hidden="true">↑ &nbsp; ↓</span></div>
+            <div class="map-region heap-region">
+              <div class="region-heading"><div><span class="region-symbol">↑</span><strong>HEAP</strong><span class="region-subtitle">dynamic allocations</span></div><span id="heap-count" class="region-count"></span></div>
+              <div id="heap-blocks" class="heap-blocks"></div>
+            </div>
+            <div class="static-region"><div><span class="static-dot data-dot"></span><strong>DATA + BSS</strong><span>global &amp; static variables</span></div><span>FIXED</span></div>
+            <div class="static-region code-region"><div><span class="static-dot code-dot"></span><strong>CODE</strong><span>program instructions (.text)</span></div><span>FIXED</span></div>
+          </div>
+        </div>
+        <div class="map-footer"><span><span class="legend-dot stack-dot"></span> Stack</span><span><span class="legend-dot heap-dot"></span> Heap</span><span class="map-footer-note">Not to scale · addresses are illustrative</span></div>
+      </section>
+
+      <aside class="control-column" aria-label="Simulation controls">
+        <section class="controls-card">
+          <div class="card-heading"><div><p class="section-number">02 / TRY IT YOURSELF</p><h2>Make a move</h2></div><span class="controls-icon" aria-hidden="true">↗</span></div>
+          <p class="controls-intro">Each action changes the simulated process. What do you notice?</p>
+          <div class="control-group">
+            <div class="control-label"><span class="control-indicator heap-dot"></span><strong>MANAGE THE HEAP</strong><span>64 bytes per block</span></div>
+            <div class="button-row"><button id="malloc" class="action-button heap-button" type="button"><span>＋</span> malloc(64)</button><button id="free" class="action-button secondary-button" type="button"><span>−</span> free()</button></div>
+            <p class="control-hint">Allocate up to 6 blocks; free removes the most recent one.</p>
+          </div>
+          <div class="control-group">
+            <div class="control-label"><span class="control-indicator stack-dot"></span><strong>EXPLORE THE STACK</strong><span>recursive calls</span></div>
+            <div class="button-row"><button id="call" class="action-button stack-button" type="button"><span>＋</span> Call function</button><button id="return" class="action-button secondary-button" type="button"><span>−</span> Return</button></div>
+            <p class="control-hint">Add up to 6 calls; return removes the most recent frame.</p>
+          </div>
+          <button id="reset" class="reset-button" type="button"><span aria-hidden="true">↺</span> Reset simulation</button>
+        </section>
+        <section class="activity-card" aria-labelledby="activity-title">
+          <div class="activity-header"><div><p class="section-number">03 / WHAT JUST HAPPENED</p><h2 id="activity-title">Activity</h2></div><span class="activity-icon" aria-hidden="true">⌁</span></div>
+          <div class="activity-message" aria-live="polite" aria-atomic="true"><span class="activity-marker" aria-hidden="true"></span><div><strong id="activity-title-text">Ready to explore</strong><p id="activity-detail">Start with malloc(64) or call a function to see memory change.</p></div></div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="takeaway" aria-label="Key concept">
+      <span class="takeaway-icon" aria-hidden="true">✦</span><div><strong>THE BIG IDEA</strong><p><code>malloc()</code> allocates on the <b>heap</b>, not in the static data segment. Function calls typically create <b>stack frames</b>, which are removed when they return.</p></div><span class="takeaway-end" aria-hidden="true">→</span>
+    </section>
+    <section class="example-card" aria-labelledby="example-title">
+      <div class="card-heading">
+        <div><p class="section-number">04 / CONNECT THE CONCEPTS</p><h2 id="example-title">The C behind the concepts</h2></div>
+        <span class="example-badge">REFERENCE CODE · C</span>
+      </div>
+      <p class="example-intro">This complete program illustrates the same ideas as the controls above. It is an example, not code executed by the simulation.</p>
+      <div class="example-layout">
+        <div class="code-window">
+          <div class="code-heading"><span>process_example.c</span><span>REFERENCE ONLY</span></div>
+          <pre tabindex="0" aria-label="Reference C program"><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+void push_stack_frames(int level) {
+    int local_marker = level;       <span class="code-comment">// Local to this call</span>
+    printf("Level %d\n", local_marker);
+
+    if (level &lt; 3) {
+        push_stack_frames(level + 1); <span class="code-comment">// Another stack frame</span>
+    }
+}                                   <span class="code-comment">// This frame returns</span>
+
+int main(void) {
+    char *block = malloc(64);       <span class="code-comment">// Allocate on the heap</span>
+    if (block == NULL) {
+        fprintf(stderr, "Allocation failed\n");
+        return 1;
+    }
+
+    block[0] = 'A';                 <span class="code-comment">// Use the allocated memory</span>
+    push_stack_frames(1);            <span class="code-comment">// Call levels 1, 2 and 3</span>
+    printf("Block: %c\n", block[0]);
+    free(block);                    <span class="code-comment">// Release the allocation</span>
+    return 0;
+}</code></pre>
+        </div>
+        <div class="example-notes">
+          <div><span class="example-step heap-step">01</span><h3>Allocate</h3><p><code>malloc(64)</code> requests 64 bytes on the heap. The pointer <code>block</code> is a local variable, not the allocated block itself.</p></div>
+          <div><span class="example-step stack-step">02</span><h3>Call &amp; return</h3><p>Each recursive call typically adds a stack frame with its own <code>level</code> and <code>local_marker</code>. Frames are removed as calls return.</p></div>
+          <div><span class="example-step heap-step">03</span><h3>Free</h3><p><code>free(block)</code> releases the heap allocation after the calls finish. Try the same actions with the controls above.</p></div>
+        </div>
+      </div>
+    </section>
+    <footer><span>UNIVERSITY OF GIBRALTAR <span class="footer-divider">/</span> CSS45102</span><span>A companion to the Cutter lab</span></footer>
+  </main>
+</body>
+</html>

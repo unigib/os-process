@@ -1,7 +1,55 @@
-# Lab: Anatomy of an OS Process in Cutter
+# Anatomy of an OS Process
 
-## Objective
-In this lab, you will compile a native C binary and inspect its live virtual memory layout using **Cutter**. You will observe how the Operating System maps code and data from disk into RAM, and watch the **Stack**, **Heap**, and **Instruction Pointer** change during execution.
+**University of Gibraltar · CSS45102**
+
+Explore how a process uses memory through two complementary approaches:
+
+1. **Start here: [JavaScript memory playground](#approach-1-javascript-memory-playground).**
+   Interactively simulate heap allocations and stack frames in a browser.
+2. **Go deeper: [Cutter lab](#approach-2-cutter-lab).** Compile a native C
+   program and inspect its memory and execution in a debugger.
+
+## Approach 1: JavaScript memory playground
+
+Open [index.html](index.html) in a browser. No installation, compiler, or server
+is required. The playground runs locally and includes a complete reference C
+program showing an allocation, recursive calls, and cleanup. That example is
+for reading; the simulation does not execute it.
+
+### Try it
+
+1. Select **malloc(64)** to add a 64-byte heap block. Select it again to add
+   another block.
+2. Select **Call function** to push a recursive function frame onto the stack.
+   Call it again to see another frame appear.
+3. Select **Return** to remove the most recent frame, then **free()** to release
+   the most recently allocated block. Notice that these actions affect different
+   regions.
+4. Select **Reset simulation** to return to an empty simulated heap and the
+   `main()` frame.
+5. Read the C example beneath the diagram and match its `malloc()`, recursive
+   calls, and `free()` to the controls.
+
+**What to look for:** `malloc()` allocates on the heap, not in the separate
+`.data` or `.bss` regions used for static storage. Function calls typically add
+stack frames, which are removed when they return.
+
+### Simulation boundaries
+
+The playground illustrates concepts; it does not inspect the browser's memory
+or run the C program. The diagram and growth directions are simplified and not
+to scale. It allows up to six heap blocks and six additional stack frames, and
+`free()` removes the most recent simulated block. Real layouts, stack direction,
+allocation sizes, allocator behavior, and addresses depend on the platform and
+runtime.
+
+## Approach 2: Cutter lab
+
+For a more in-depth investigation, compile [process_anatomy.c](process_anatomy.c)
+and inspect its virtual memory layout using **Cutter**. Observe how the
+operating system maps code and data, and examine the stack, heap, and
+instruction pointer during execution. This approach requires a C compiler and
+Cutter.
 
 ---
 
