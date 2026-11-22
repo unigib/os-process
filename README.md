@@ -20,14 +20,16 @@ for reading; the simulation does not execute it.
 
 1. Select **malloc(64)** to add a 64-byte heap block. Select it again to add
    another block.
-2. Select **Call function** to push a recursive function frame onto the stack.
+2. Select **Touch latest block** to simulate accessing it. The first touch
+   causes a simulated page fault; touch it again to see an access without one.
+3. Select **Call function** to push a recursive function frame onto the stack.
    Call it again to see another frame appear.
-3. Select **Return** to remove the most recent frame, then **free()** to release
+4. Select **Return** to remove the most recent frame, then **free()** to release
    the most recently allocated block. Notice that these actions affect different
    regions.
-4. Select **Reset simulation** to return to an empty simulated heap and the
+5. Select **Reset simulation** to return to an empty simulated heap and the
    `main()` frame.
-5. Read the C example beneath the diagram and match its `malloc()`, recursive
+6. Read the C example beneath the diagram and match its `malloc()`, recursive
    calls, and `free()` to the controls.
 
 **What to look for:** `malloc()` allocates on the heap, not in the separate
@@ -39,9 +41,33 @@ stack frames, which are removed when they return.
 The playground illustrates concepts; it does not inspect the browser's memory
 or run the C program. The diagram and growth directions are simplified and not
 to scale. It allows up to six heap blocks and six additional stack frames, and
-`free()` removes the most recent simulated block. Real layouts, stack direction,
-allocation sizes, allocator behavior, and addresses depend on the platform and
-runtime.
+`free()` removes the most recent simulated block. For illustration, each block
+has its own simulated page, and its first touch always faults. Real blocks can
+share pages, and a page may already be backed by memory. Real layouts, stack
+direction, allocation sizes, allocator behavior, and addresses depend on the
+platform and runtime.
+
+In a real process, `malloc()` first tries to reuse available memory. If it
+needs more, the allocator can request virtual address space from the OS using
+a system call; on Linux, for example, it may use `mmap()` or `brk()`. The OS
+can add or extend a mapping in the process's address space. A mapping does not
+necessarily provide physical memory immediately: accessing a mapped page can
+trigger a page fault, allowing the OS to supply a physical page.
+
+The stack pointer moves as functions are called and return. On systems with a
+growing stack, accessing memory beyond the currently usable stack pages can
+trigger a page fault; if the access is valid and within the stack's limits, the
+OS can extend the usable stack. Otherwise, a stack overflow may occur. Details
+depend on the OS and its configuration. Memory availability and platform
+limits can prevent growth even when the heap and stack have not met.
+
+For example, a process that repeatedly allocates and writes to large blocks
+can create memory pressure as the OS supplies RAM for the pages it accesses.
+The OS can reclaim pages and may move some to swap on disk, if available, but
+swap is slower and finite. If resources are exhausted, an allocation may fail
+or the OS may terminate a process, depending on its policy. Process limits
+and virtual address space limits can also stop allocation earlier; virtual
+memory does not create unlimited physical storage.
 
 ## Approach 2: Cutter lab
 

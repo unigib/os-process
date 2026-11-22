@@ -58,7 +58,9 @@
           <div class="control-group">
             <div class="control-label"><span class="control-indicator heap-dot"></span><strong>MANAGE THE HEAP</strong><span>64 bytes per block</span></div>
             <div class="button-row"><button id="malloc" class="action-button heap-button" type="button"><span>＋</span> malloc(64)</button><button id="free" class="action-button secondary-button" type="button"><span>−</span> free()</button></div>
-            <p class="control-hint">Allocate up to 6 blocks; free removes the most recent one.</p>
+            <button id="touch" class="action-button secondary-button touch-button" type="button">Touch latest block</button>
+            <p class="control-hint">Allocate up to 6 blocks. Touch accesses the latest block; free removes it.</p>
+            <p class="control-hint">For illustration, each block has its own simulated page. Its first touch causes a page fault; real blocks can share pages and may already be backed by memory.</p>
           </div>
           <div class="control-group">
             <div class="control-label"><span class="control-indicator stack-dot"></span><strong>EXPLORE THE STACK</strong><span>recursive calls</span></div>
@@ -77,9 +79,27 @@
     <section class="takeaway" aria-label="Key concept">
       <span class="takeaway-icon" aria-hidden="true">✦</span><div><strong>THE BIG IDEA</strong><p><code>malloc()</code> allocates on the <b>heap</b>, not in the static data segment. Function calls typically create <b>stack frames</b>, which are removed when they return.</p></div><span class="takeaway-end" aria-hidden="true">→</span>
     </section>
+    <section class="example-card" aria-labelledby="growth-title">
+      <div class="card-heading">
+        <div><p class="section-number">04 / BEYOND THE MODEL</p><h2 id="growth-title">How memory grows</h2></div>
+      </div>
+      <p class="example-intro"><strong>Heap:</strong> A call to <code>malloc()</code> first tries to reuse available memory. If the allocator needs more, it can make a system call asking the OS for more virtual address space; on Linux, for example, it may use <code>mmap()</code> or <code>brk()</code>. The OS can then add or extend a mapping in the process's address space.</p>
+      <p class="example-intro"><strong>Stack:</strong> The stack pointer moves as functions are called and return; it is not fixed. On systems with a growing stack, accessing memory beyond the currently usable stack pages can cause a page fault. If the access is valid and within the stack's limits, the OS can extend the usable stack; otherwise the process may encounter a stack overflow.</p>
+      <p class="example-intro"><strong>Physical memory:</strong> A virtual mapping does not necessarily mean physical memory has been provided immediately. Accessing a mapped page can trigger a page fault, allowing the OS to supply a physical page. Details vary by OS and configuration.</p>
+      <p class="example-intro">The process uses virtual addresses, not a fixed-size container. Real allocation and stack growth depend on the platform and available resources and can fail before the regions meet. The six-block and six-call limits above are only for this simulation.</p>
+      <h3 class="pressure-title">How can a machine run out of memory?</h3>
+      <p class="example-intro">Imagine a process repeatedly allocating and writing to large blocks. This is an illustrative sequence, not a measurement of this machine:</p>
+      <ol class="pressure-steps">
+        <li><strong>1 / Request</strong><p>The allocator can ask the OS for more virtual address space.</p></li>
+        <li><strong>2 / Use</strong><p>Writing to the blocks can cause page faults, prompting the OS to supply RAM.</p></li>
+        <li><strong>3 / Pressure</strong><p>As memory fills, the OS can reclaim pages and may move some to swap on disk, if available. Swap is slower and finite.</p></li>
+        <li><strong>4 / Limit</strong><p>If resources run out, allocation may fail or the OS may terminate a process, depending on its policy.</p></li>
+      </ol>
+      <p class="example-intro">Limits on virtual address space or on a process can also stop allocation earlier. Virtual memory does not create unlimited physical storage.</p>
+    </section>
     <section class="example-card" aria-labelledby="example-title">
       <div class="card-heading">
-        <div><p class="section-number">04 / CONNECT THE CONCEPTS</p><h2 id="example-title">The C behind the concepts</h2></div>
+        <div><p class="section-number">05 / CONNECT THE CONCEPTS</p><h2 id="example-title">The C behind the concepts</h2></div>
         <span class="example-badge">REFERENCE CODE · C</span>
       </div>
       <p class="example-intro">This complete program illustrates the same ideas as the controls above. It is an example, not code executed by the simulation.</p>

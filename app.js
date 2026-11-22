@@ -8,6 +8,7 @@ const BLOCK_BYTES = 64;
 const elements = {
   malloc: document.getElementById("malloc"),
   free: document.getElementById("free"),
+  touch: document.getElementById("touch"),
   call: document.getElementById("call"),
   return: document.getElementById("return"),
   reset: document.getElementById("reset"),
@@ -37,7 +38,7 @@ function memoryItem(label, detail, className) {
 
 function render() {
   elements.heapBlocks.replaceChildren(...blocks.map(block =>
-    memoryItem(`block ${block}`, `${BLOCK_BYTES} bytes`, "heap-item")
+    memoryItem(`block ${block.id}`, `${BLOCK_BYTES} bytes · ${block.touched ? "page ready" : "not touched"}`, "heap-item")
   ));
   const frames = [memoryItem("main()", "base frame", "stack-item")];
   for (let level = 1; level <= calls; level++) {
@@ -48,6 +49,7 @@ function render() {
   elements.stackCount.textContent = `${calls + 1} ${calls === 0 ? "FRAME" : "FRAMES"}`;
   elements.malloc.disabled = blocks.length === MAX_BLOCKS;
   elements.free.disabled = blocks.length === 0;
+  elements.touch.disabled = blocks.length === 0;
   elements.call.disabled = calls === MAX_CALLS;
   elements.return.disabled = calls === 0;
 }
@@ -59,17 +61,29 @@ function announce(title, detail) {
 
 elements.malloc.addEventListener("click", () => {
   if (blocks.length >= MAX_BLOCKS) return;
-  const block = nextBlockId++;
+  const block = { id: nextBlockId++, touched: false };
   blocks.push(block);
   render();
-  announce(`Allocated block ${block}`, `malloc(64) added 64 bytes to the simulated heap. The data and BSS segments did not change.`);
+  announce(`Allocated block ${block.id}`, `malloc(64) added 64 bytes to the simulated heap. Touch the block to access its simulated page.`);
+});
+
+elements.touch.addEventListener("click", () => {
+  if (blocks.length === 0) return;
+  const block = blocks[blocks.length - 1];
+  if (block.touched) {
+    announce(`Accessed block ${block.id}`, "Its simulated page is already ready, so this access does not cause another page fault.");
+    return;
+  }
+  block.touched = true;
+  render();
+  announce(`Page fault on block ${block.id}`, "The first access to this simulated page caused a page fault. The OS supplied a physical page, and the access resumed.");
 });
 
 elements.free.addEventListener("click", () => {
   if (blocks.length === 0) return;
   const block = blocks.pop();
   render();
-  announce(`Freed block ${block}`, "The most recent allocation is no longer in use. Real allocators may keep freed memory for reuse.");
+  announce(`Freed block ${block.id}`, "The most recent allocation is no longer in use. Real allocators may keep freed memory for reuse.");
 });
 
 elements.call.addEventListener("click", () => {
