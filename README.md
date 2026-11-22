@@ -13,11 +13,21 @@ Download and install the latest release of Cutter for your OS from [cutter.re](h
 * **macOS:** Open the `.dmg` and drag `Cutter.app` to your Applications folder. *(Note: On first launch, right-click `Cutter.app` -> **Open** to bypass Gatekeeper).*
 
 ### 2. Install a C Compiler
-* **Windows (MinGW-w64):** Install via Winget (`winget install MSYS2.MSYS2`), open the MSYS2 terminal, run `pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain`, and add `C:\msys64\ucrt64\bin` to your Windows `PATH`.
-* **macOS (Apple Clang):** Open Terminal and run:
-  ```bash
-  xcode-select --install
-  ```
+
+#### Windows (Recommended — Single Command via PowerShell)
+Open **PowerShell** and run:
+```powershell
+winget install BrechtSanders.WinLibs.POSIX.UCRT
+```
+**Close and reopen PowerShell** after installation completes, then verify with `gcc --version`.
+
+*(Alternative Windows Method: If you use MSYS2, open the **MSYS2 UCRT64** app from the Start Menu—not PowerShell—and run `pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain`, then add `C:\msys64\ucrt64\bin` to your Windows `PATH`.)*
+
+#### macOS (Apple Clang)
+Open **Terminal** and run:
+```bash
+xcode-select --install
+```
 
 ---
 
